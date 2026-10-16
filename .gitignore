@@ -1,0 +1,40 @@
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Backend dependencies and generated output
+worabe-transport-api/node_modules/
+worabe-transport-api/coverage/
+worabe-transport-api/dist/
+worabe-transport-api/.nyc_output/
+
+# Flutter/Dart generated output
+worabe_transport/.dart_tool/
+worabe_transport/.pub-cache/
+worabe_transport/.pub/
+worabe_transport/build/
+worabe_transport/coverage/
+worabe_transport/.flutter-plugins
+worabe_transport/.flutter-plugins-dependencies
+worabe_transport/.packages
+worabe_transport/ios/Flutter/ephemeral/
+worabe_transport/linux/flutter/ephemeral/
+worabe_transport/macos/Flutter/ephemeral/
+worabe_transport/windows/flutter/ephemeral/
+worabe_transport/android/local.properties

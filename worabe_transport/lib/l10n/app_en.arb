@@ -1,0 +1,11 @@
+{
+  "@@locale": "en",
+  "appTitle": "Worabe Transport",
+  "signIn": "Sign In",
+  "register": "Register",
+  "findDriver": "Find a Driver",
+  "myRides": "My Rides",
+  "complaints": "Complaints",
+  "settings": "Settings",
+  "logout": "Log out"
+}

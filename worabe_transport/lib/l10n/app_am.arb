@@ -1,0 +1,11 @@
+{
+  "@@locale": "am",
+  "appTitle": "ወራቤ ትራንስፖርት",
+  "signIn": "ግባ",
+  "register": "ተመዝገብ",
+  "findDriver": "አሽከርካሪ ፈልግ",
+  "myRides": "ጉዞዎቼ",
+  "complaints": "ቅሬታዎች",
+  "settings": "ቅንብሮች",
+  "logout": "ውጣ"
+}
