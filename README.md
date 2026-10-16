@@ -2386,10 +2386,8 @@ This keeps the Flutter client and backend aligned.
 
 ## 30. License
 
-A license has not yet been specified.
-
-Before making the project public, choose a license that reflects how the code may be used, modified, and redistributed. Until then, do not assume that public repository access automatically grants permission to reuse the code.
-
+Sofiya Yasin
+sofiyayasin2@gmail.com
 ---
 
 ## Final Project Summary
