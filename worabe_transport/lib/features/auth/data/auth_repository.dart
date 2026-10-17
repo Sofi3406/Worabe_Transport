@@ -8,16 +8,17 @@ class AuthRepository {
   AuthRepository({
     required ApiClient apiClient,
     required TokenStorage tokenStorage,
-  })  : _dio = apiClient.dio,
-        _tokenStorage = tokenStorage;
+  }) : _dio = apiClient.dio,
+       _tokenStorage = tokenStorage;
 
   final Dio _dio;
   final TokenStorage _tokenStorage;
 
-  AppException _map(DioException e) =>
-      e.error is AppException ? e.error as AppException : ServerException(e.message ?? 'Request failed.');
+  AppException _map(DioException e) => e.error is AppException
+      ? e.error as AppException
+      : ServerException(e.message ?? 'Request failed.');
 
-  Future<UserModel> register({
+  Future<void> register({
     required String fullName,
     required String phone,
     required String password,
@@ -34,8 +35,7 @@ class AuthRepository {
         'preferredLanguage': preferredLanguage,
       };
       if (vehiclePlate != null) body['vehiclePlate'] = vehiclePlate;
-      final res = await _dio.post('/auth/register', data: body);
-      return UserModel.fromJson(res.data['user'] as Map<String, dynamic>);
+      await _dio.post('/auth/register', data: body);
     } on DioException catch (e) {
       throw _map(e);
     }
@@ -46,10 +46,10 @@ class AuthRepository {
     required String password,
   }) async {
     try {
-      final res = await _dio.post('/auth/login', data: {
-        'phone': phone,
-        'password': password,
-      });
+      final res = await _dio.post(
+        '/auth/login',
+        data: {'phone': phone, 'password': password},
+      );
       final token = res.data['token'] as String;
       final user = UserModel.fromJson(res.data['user'] as Map<String, dynamic>);
       await _tokenStorage.saveToken(token);

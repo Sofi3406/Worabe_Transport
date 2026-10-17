@@ -118,7 +118,7 @@ async function register(req, res) {
       },
     });
   } catch (error) {
-    if (error.code === 11000) {
+    if (error.code === 11000 && error.keyPattern?.phone) {
       return res.status(409).json({
         message: "An account with this phone number already exists.",
       });

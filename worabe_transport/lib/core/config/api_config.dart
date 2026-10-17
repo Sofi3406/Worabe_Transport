@@ -1,7 +1,9 @@
+import 'api_host.dart';
+
 class ApiConfig {
-  // Android emulator: host machine's localhost.
-  static const baseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://10.0.2.2:5000/api',
-  );
+  static const _configuredBaseUrl = String.fromEnvironment('API_BASE_URL');
+
+  static final baseUrl = _configuredBaseUrl.isNotEmpty
+      ? _configuredBaseUrl
+      : 'http://$apiHost:5000/api';
 }

@@ -18,6 +18,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _phoneCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   bool _obscure = true;
+  bool _submitting = false;
   String? _error;
 
   @override
@@ -29,36 +30,51 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() => _error = null);
+    setState(() {
+      _error = null;
+      _submitting = true;
+    });
 
-    await ref.read(authNotifierProvider.notifier).login(
-          phone: _phoneCtrl.text.trim(),
-          password: _passwordCtrl.text,
+    try {
+      await ref
+          .read(authNotifierProvider.notifier)
+          .login(phone: _phoneCtrl.text.trim(), password: _passwordCtrl.text);
+
+      if (!mounted) return;
+      final authState = ref.read(authNotifierProvider);
+      authState.when(
+        data: (user) {
+          if (user == null) {
+            setState(() => _error = 'Login did not return a user account.');
+          } else if (user.isDriver) {
+            context.go('/driver/home');
+          } else if (user.isAdmin) {
+            context.go('/admin/home');
+          } else {
+            context.go('/passenger/home');
+          }
+        },
+        error: (e, _) => setState(
+          () => _error = e is AppException ? e.message : e.toString(),
+        ),
+        loading: () => setState(
+          () => _error = 'The login request did not complete. Try again.',
+        ),
+      );
+    } catch (error) {
+      if (mounted) {
+        setState(
+          () =>
+              _error = error is AppException ? error.message : error.toString(),
         );
-
-    if (!mounted) return;
-    final authState = ref.read(authNotifierProvider);
-    authState.when(
-      data: (user) {
-        if (user == null) return;
-        if (user.isDriver) {
-          context.go('/driver/home');
-        } else if (user.isAdmin) {
-          context.go('/admin/home');
-        } else {
-          context.go('/passenger/home');
-        }
-      },
-      error: (e, _) =>
-          setState(() => _error = e is AppException ? e.message : e.toString()),
-      loading: () {},
-    );
+      }
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final loading = ref.watch(authNotifierProvider).isLoading;
-
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -69,22 +85,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 48),
-                Icon(Icons.directions_car,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.primary),
+                Icon(
+                  Icons.directions_car,
+                  size: 64,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 const SizedBox(height: 16),
                 Text(
                   'Worabe Transport',
                   textAlign: TextAlign.center,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
-                Text('Sign in to continue',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium),
+                Text(
+                  'Sign in to continue',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 const SizedBox(height: 40),
                 if (_error != null) ...[
                   ErrorMessage(_error!),
@@ -97,8 +116,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     labelText: 'Phone number',
                     prefixIcon: Icon(Icons.phone),
                   ),
-                  validator: (v) =>
-                      v == null || v.trim().isEmpty ? 'Phone is required.' : null,
+                  validator: (v) => v == null || v.trim().isEmpty
+                      ? 'Phone is required.'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -109,7 +129,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     prefixIcon: const Icon(Icons.lock),
                     suffixIcon: IconButton(
                       icon: Icon(
-                          _obscure ? Icons.visibility : Icons.visibility_off),
+                        _obscure ? Icons.visibility : Icons.visibility_off,
+                      ),
                       onPressed: () => setState(() => _obscure = !_obscure),
                     ),
                   ),
@@ -118,7 +139,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 LoadingButton(
-                    label: 'Sign In', loading: loading, onPressed: _submit),
+                  label: 'Sign In',
+                  loading: _submitting,
+                  onPressed: _submit,
+                ),
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () => context.push('/register'),

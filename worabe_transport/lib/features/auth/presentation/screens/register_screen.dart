@@ -21,6 +21,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _plateCtrl = TextEditingController();
   String _role = 'passenger';
   bool _obscure = true;
+  bool _submitting = false;
   String? _error;
   bool _success = false;
 
@@ -38,30 +39,46 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     setState(() {
       _error = null;
       _success = false;
+      _submitting = true;
     });
 
-    await ref.read(authNotifierProvider.notifier).register(
-          fullName: _nameCtrl.text.trim(),
-          phone: _phoneCtrl.text.trim(),
-          password: _passwordCtrl.text,
-          role: _role,
-          vehiclePlate: _role == 'driver' ? _plateCtrl.text.trim() : null,
-        );
+    try {
+      await ref
+          .read(authNotifierProvider.notifier)
+          .register(
+            fullName: _nameCtrl.text.trim(),
+            phone: _phoneCtrl.text.trim(),
+            password: _passwordCtrl.text,
+            role: _role,
+            vehiclePlate: _role == 'driver' ? _plateCtrl.text.trim() : null,
+          );
 
-    if (!mounted) return;
-    final authState = ref.read(authNotifierProvider);
-    authState.when(
-      data: (_) => setState(() => _success = true),
-      error: (e, _) =>
-          setState(() => _error = e is AppException ? e.message : e.toString()),
-      loading: () {},
-    );
+      if (!mounted) return;
+      final authState = ref.read(authNotifierProvider);
+      authState.when(
+        data: (_) => setState(() => _success = true),
+        error: (e, _) => setState(
+          () => _error = e is AppException ? e.message : e.toString(),
+        ),
+        loading: () => setState(
+          () =>
+              _error = 'The registration request did not complete. Try again.',
+        ),
+      );
+    } catch (error) {
+      if (mounted) {
+        setState(
+          () =>
+              _error = error is AppException ? error.message : error.toString(),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final loading = ref.watch(authNotifierProvider).isLoading;
-
     return Scaffold(
       appBar: AppBar(title: const Text('Create Account')),
       body: SafeArea(
@@ -111,9 +128,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           labelText: 'Password',
                           prefixIcon: const Icon(Icons.lock),
                           suffixIcon: IconButton(
-                            icon: Icon(_obscure
-                                ? Icons.visibility
-                                : Icons.visibility_off),
+                            icon: Icon(
+                              _obscure
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
                             onPressed: () =>
                                 setState(() => _obscure = !_obscure),
                           ),
@@ -131,9 +150,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                         items: const [
                           DropdownMenuItem(
-                              value: 'passenger', child: Text('Passenger')),
+                            value: 'passenger',
+                            child: Text('Passenger'),
+                          ),
                           DropdownMenuItem(
-                              value: 'driver', child: Text('Driver')),
+                            value: 'driver',
+                            child: Text('Driver'),
+                          ),
                         ],
                         onChanged: (v) => setState(() => _role = v!),
                       ),
@@ -146,16 +169,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             prefixIcon: Icon(Icons.directions_car),
                           ),
                           validator: (v) =>
-                              _role == 'driver' && (v == null || v.trim().isEmpty)
-                                  ? 'Vehicle plate is required for drivers.'
-                                  : null,
+                              _role == 'driver' &&
+                                  (v == null || v.trim().isEmpty)
+                              ? 'Vehicle plate is required for drivers.'
+                              : null,
                         ),
                       ],
                       const SizedBox(height: 24),
                       LoadingButton(
-                          label: 'Register',
-                          loading: loading,
-                          onPressed: _submit),
+                        label: 'Register',
+                        loading: _submitting,
+                        onPressed: _submit,
+                      ),
                       const SizedBox(height: 16),
                       TextButton(
                         onPressed: () => context.go('/login'),
@@ -180,12 +205,17 @@ class _SuccessBanner extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(height: 48),
-        Icon(Icons.check_circle,
-            size: 72, color: Theme.of(context).colorScheme.primary),
+        Icon(
+          Icons.check_circle,
+          size: 72,
+          color: Theme.of(context).colorScheme.primary,
+        ),
         const SizedBox(height: 16),
-        Text('Registration successful!',
-            style: Theme.of(context).textTheme.headlineSmall,
-            textAlign: TextAlign.center),
+        Text(
+          'Registration successful!',
+          style: Theme.of(context).textTheme.headlineSmall,
+          textAlign: TextAlign.center,
+        ),
         const SizedBox(height: 12),
         Text(
           isDriver

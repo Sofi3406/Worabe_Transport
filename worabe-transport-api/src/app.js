@@ -12,7 +12,7 @@ app.use(helmet());
 app.use(cors({
   origin: process.env.CLIENT_ORIGIN
     ? process.env.CLIENT_ORIGIN.split(",")
-    : [],
+    : true,
 }));
 app.use(express.json({ limit: "20kb" }));
 app.use(morgan("dev"));
