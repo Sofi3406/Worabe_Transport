@@ -14,7 +14,8 @@ class PassengerHomeScreen extends ConsumerWidget {
     final ridesAsync = ref.watch(myRidesProvider);
     final notificationsAsync = ref.watch(notificationsProvider);
     final activeRides = ridesAsync.maybeWhen(
-      data: (rides) => rides.where((ride) => ride.isPending || ride.isAccepted).length,
+      data: (rides) =>
+          rides.where((ride) => ride.isPending || ride.isAccepted).length,
       orElse: () => 0,
     );
     final unreadCount = notificationsAsync.maybeWhen(
@@ -59,42 +60,65 @@ class PassengerHomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Hello, ${user?.fullName ?? ''}',
-              style: Theme.of(context).textTheme.headlineSmall,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset('assets/images/bajaj2.jpg', fit: BoxFit.cover),
+          Container(color: Colors.black38),
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Hello, ${user?.fullName ?? ''}',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Where would you like to go?',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(color: Colors.white),
+                ),
+                const SizedBox(height: 32),
+                Card(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surface.withValues(alpha: 0.92),
+                  child: ListTile(
+                    leading: const Icon(Icons.route),
+                    title: Text(
+                      '$activeRides active ride${activeRides == 1 ? '' : 's'}',
+                    ),
+                    subtitle: const Text('Track requests and completed trips'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push('/passenger/rides'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.search),
+                  label: const Text('Find a Driver'),
+                  onPressed: () => context.push('/passenger/drivers'),
+                ),
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.drafts),
+                  label: const Text('Offline Drafts'),
+                  onPressed: () => context.push('/passenger/drafts'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: Colors.white),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text('Where would you like to go?',
-                style: Theme.of(context).textTheme.bodyLarge),
-            const SizedBox(height: 32),
-            Card(
-              child: ListTile(
-                leading: const Icon(Icons.route),
-                title: Text('$activeRides active ride${activeRides == 1 ? '' : 's'}'),
-                subtitle: const Text('Track requests and completed trips'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push('/passenger/rides'),
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.search),
-              label: const Text('Find a Driver'),
-              onPressed: () => context.push('/passenger/drivers'),
-            ),
-            const SizedBox(height: 16),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.drafts),
-              label: const Text('Offline Drafts'),
-              onPressed: () => context.push('/passenger/drafts'),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

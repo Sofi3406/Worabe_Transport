@@ -81,115 +81,133 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Create Account')),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: _success
-              ? _SuccessBanner(
-                  isDriver: _role == 'driver',
-                  onLogin: () => context.go('/login'),
-                )
-              : Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (_error != null) ...[
-                        ErrorMessage(_error!),
-                        const SizedBox(height: 16),
-                      ],
-                      TextFormField(
-                        controller: _nameCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'Full name',
-                          prefixIcon: Icon(Icons.person),
-                        ),
-                        validator: (v) => v == null || v.trim().isEmpty
-                            ? 'Full name is required.'
-                            : null,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _phoneCtrl,
-                        keyboardType: TextInputType.phone,
-                        decoration: const InputDecoration(
-                          labelText: 'Phone number',
-                          prefixIcon: Icon(Icons.phone),
-                        ),
-                        validator: (v) => v == null || v.trim().isEmpty
-                            ? 'Phone is required.'
-                            : null,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _passwordCtrl,
-                        obscureText: _obscure,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          prefixIcon: const Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscure
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                            onPressed: () =>
-                                setState(() => _obscure = !_obscure),
-                          ),
-                        ),
-                        validator: (v) => v == null || v.length < 8
-                            ? 'Password must be at least 8 characters.'
-                            : null,
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        initialValue: _role,
-                        decoration: const InputDecoration(
-                          labelText: 'Account type',
-                          prefixIcon: Icon(Icons.badge),
-                        ),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'passenger',
-                            child: Text('Passenger'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'driver',
-                            child: Text('Driver'),
-                          ),
-                        ],
-                        onChanged: (v) => setState(() => _role = v!),
-                      ),
-                      if (_role == 'driver') ...[
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _plateCtrl,
-                          decoration: const InputDecoration(
-                            labelText: 'Vehicle plate',
-                            prefixIcon: Icon(Icons.directions_car),
-                          ),
-                          validator: (v) =>
-                              _role == 'driver' &&
-                                  (v == null || v.trim().isEmpty)
-                              ? 'Vehicle plate is required for drivers.'
-                              : null,
-                        ),
-                      ],
-                      const SizedBox(height: 24),
-                      LoadingButton(
-                        label: 'Register',
-                        loading: _submitting,
-                        onPressed: _submit,
-                      ),
-                      const SizedBox(height: 16),
-                      TextButton(
-                        onPressed: () => context.go('/login'),
-                        child: const Text('Already have an account? Sign in'),
-                      ),
-                    ],
-                  ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset('assets/images/bajaj1.jpg', fit: BoxFit.cover),
+          Container(color: Colors.black45),
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.surface.withValues(alpha: 0.94),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-        ),
+                child: _success
+                    ? _SuccessBanner(
+                        isDriver: _role == 'driver',
+                        onLogin: () => context.go('/login'),
+                      )
+                    : Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (_error != null) ...[
+                              ErrorMessage(_error!),
+                              const SizedBox(height: 16),
+                            ],
+                            TextFormField(
+                              controller: _nameCtrl,
+                              decoration: const InputDecoration(
+                                labelText: 'Full name',
+                                prefixIcon: Icon(Icons.person),
+                              ),
+                              validator: (v) => v == null || v.trim().isEmpty
+                                  ? 'Full name is required.'
+                                  : null,
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _phoneCtrl,
+                              keyboardType: TextInputType.phone,
+                              decoration: const InputDecoration(
+                                labelText: 'Phone number',
+                                prefixIcon: Icon(Icons.phone),
+                              ),
+                              validator: (v) => v == null || v.trim().isEmpty
+                                  ? 'Phone is required.'
+                                  : null,
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _passwordCtrl,
+                              obscureText: _obscure,
+                              decoration: InputDecoration(
+                                labelText: 'Password',
+                                prefixIcon: const Icon(Icons.lock),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscure
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                  ),
+                                  onPressed: () =>
+                                      setState(() => _obscure = !_obscure),
+                                ),
+                              ),
+                              validator: (v) => v == null || v.length < 8
+                                  ? 'Password must be at least 8 characters.'
+                                  : null,
+                            ),
+                            const SizedBox(height: 16),
+                            DropdownButtonFormField<String>(
+                              initialValue: _role,
+                              decoration: const InputDecoration(
+                                labelText: 'Account type',
+                                prefixIcon: Icon(Icons.badge),
+                              ),
+                              items: const [
+                                DropdownMenuItem(
+                                  value: 'passenger',
+                                  child: Text('Passenger'),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'driver',
+                                  child: Text('Driver'),
+                                ),
+                              ],
+                              onChanged: (v) => setState(() => _role = v!),
+                            ),
+                            if (_role == 'driver') ...[
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _plateCtrl,
+                                decoration: const InputDecoration(
+                                  labelText: 'Vehicle plate',
+                                  prefixIcon: Icon(Icons.directions_car),
+                                ),
+                                validator: (v) =>
+                                    _role == 'driver' &&
+                                        (v == null || v.trim().isEmpty)
+                                    ? 'Vehicle plate is required for drivers.'
+                                    : null,
+                              ),
+                            ],
+                            const SizedBox(height: 24),
+                            LoadingButton(
+                              label: 'Register',
+                              loading: _submitting,
+                              onPressed: _submit,
+                            ),
+                            const SizedBox(height: 16),
+                            TextButton(
+                              onPressed: () => context.go('/login'),
+                              child: const Text(
+                                'Already have an account? Sign in',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
