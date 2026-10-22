@@ -6,6 +6,7 @@ import 'package:worabe_transport/features/driver/presentation/providers/driver_p
 import 'package:worabe_transport/features/driver/domain/driver_model.dart';
 import 'package:worabe_transport/features/auth/presentation/providers/auth_providers.dart';
 import 'package:worabe_transport/features/rides/presentation/providers/ride_providers.dart';
+import 'package:worabe_transport/features/notifications/presentation/providers/notification_providers.dart';
 
 class DriverHomeScreen extends ConsumerWidget {
   const DriverHomeScreen({super.key});
@@ -14,6 +15,11 @@ class DriverHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(myDriverProfileProvider);
     final ridesAsync = ref.watch(myRidesProvider);
+    final notificationsAsync = ref.watch(notificationsProvider);
+    final unreadCount = notificationsAsync.maybeWhen(
+      data: (items) => items.where((item) => !item.isRead).length,
+      orElse: () => 0,
+    );
     final pendingCount = ridesAsync.maybeWhen(
       data: (rides) => rides.where((r) => r.isPending).length,
       orElse: () => 0,
@@ -25,12 +31,12 @@ class DriverHomeScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: Badge(
-              isLabelVisible: pendingCount > 0,
-              label: Text('$pendingCount'),
+              isLabelVisible: pendingCount + unreadCount > 0,
+              label: Text('${pendingCount + unreadCount}'),
               child: const Icon(Icons.notifications),
             ),
-            tooltip: 'Requests',
-            onPressed: () => context.push('/driver/rides'),
+            tooltip: 'Notifications and requests',
+            onPressed: () => context.push('/notifications'),
           ),
           IconButton(
             icon: const Icon(Icons.settings),

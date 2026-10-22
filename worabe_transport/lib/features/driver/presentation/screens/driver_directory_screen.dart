@@ -12,8 +12,7 @@ class DriverDirectoryScreen extends ConsumerStatefulWidget {
       _DriverDirectoryScreenState();
 }
 
-class _DriverDirectoryScreenState
-    extends ConsumerState<DriverDirectoryScreen> {
+class _DriverDirectoryScreenState extends ConsumerState<DriverDirectoryScreen> {
   String? _filter;
 
   @override
@@ -86,22 +85,58 @@ class _DriverCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor:
-              driver.isOnline ? Colors.green.shade100 : Colors.grey.shade200,
-          child: Icon(Icons.directions_car,
-              color: driver.isOnline ? Colors.green : Colors.grey),
-        ),
-        title: Text(driver.fullName),
-        subtitle: Text('${driver.vehiclePlate} · ${driver.phone}'),
-        trailing: driver.isOnline
-            ? ElevatedButton(
-                onPressed: onRequest, child: const Text('Request'))
-            : Chip(
-                label: const Text('Offline'),
-                backgroundColor: Colors.grey.shade200,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: driver.isOnline
+                  ? Colors.green.shade100
+                  : Colors.grey.shade200,
+              child: Icon(
+                Icons.directions_car,
+                color: driver.isOnline ? Colors.green : Colors.grey,
               ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    driver.fullName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${driver.vehiclePlate} · ${driver.phone}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            if (driver.isOnline)
+              SizedBox(
+                width: 112,
+                child: ElevatedButton(
+                  onPressed: onRequest,
+                  child: const Text('Request'),
+                ),
+              )
+            else
+              SizedBox(
+                width: 112,
+                child: Chip(
+                  label: const Text('Offline'),
+                  backgroundColor: Colors.grey.shade200,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

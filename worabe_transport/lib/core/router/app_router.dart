@@ -17,6 +17,8 @@ import 'package:worabe_transport/features/complaints/presentation/screens/submit
 import 'package:worabe_transport/features/admin/presentation/screens/admin_home_screen.dart';
 import 'package:worabe_transport/features/admin/presentation/screens/admin_complaints_screen.dart';
 import 'package:worabe_transport/features/settings/presentation/screens/settings_screen.dart';
+import 'package:worabe_transport/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:worabe_transport/features/admin/presentation/screens/admin_ride_history_screen.dart';
 import 'package:worabe_transport/shared/models/user_model.dart';
 
 String homePathForUser(UserModel user) {
@@ -109,17 +111,19 @@ final routerProvider = Provider<GoRouter>((ref) {
           return SubmitComplaintScreen(rideId: rideId);
         },
       ),
-      GoRoute(
-        path: '/admin/home',
-        builder: (_, __) => const AdminHomeScreen(),
-      ),
+      GoRoute(path: '/admin/home', builder: (_, __) => const AdminHomeScreen()),
       GoRoute(
         path: '/admin/complaints',
         builder: (_, __) => const AdminComplaintsScreen(),
       ),
       GoRoute(
-        path: '/settings',
-        builder: (_, __) => const SettingsScreen(),
+        path: '/admin/rides',
+        builder: (_, __) => const AdminRideHistoryScreen(),
+      ),
+      GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
+      GoRoute(
+        path: '/notifications',
+        builder: (_, __) => const NotificationsScreen(),
       ),
     ],
   );

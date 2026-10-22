@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:worabe_transport/features/auth/presentation/providers/auth_providers.dart';
+import 'package:worabe_transport/features/notifications/presentation/providers/notification_providers.dart';
+import 'package:worabe_transport/features/rides/presentation/providers/ride_providers.dart';
 
 class PassengerHomeScreen extends ConsumerWidget {
   const PassengerHomeScreen({super.key});
@@ -9,11 +11,30 @@ class PassengerHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authUserProvider);
+    final ridesAsync = ref.watch(myRidesProvider);
+    final notificationsAsync = ref.watch(notificationsProvider);
+    final activeRides = ridesAsync.maybeWhen(
+      data: (rides) => rides.where((ride) => ride.isPending || ride.isAccepted).length,
+      orElse: () => 0,
+    );
+    final unreadCount = notificationsAsync.maybeWhen(
+      data: (items) => items.where((item) => !item.isRead).length,
+      orElse: () => 0,
+    );
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Worabe Transport'),
         actions: [
+          IconButton(
+            icon: Badge(
+              isLabelVisible: unreadCount > 0,
+              label: Text('$unreadCount'),
+              child: const Icon(Icons.notifications),
+            ),
+            tooltip: 'Notifications',
+            onPressed: () => context.push('/notifications'),
+          ),
           IconButton(
             icon: const Icon(Icons.history),
             tooltip: 'My Rides',
@@ -51,6 +72,16 @@ class PassengerHomeScreen extends ConsumerWidget {
             Text('Where would you like to go?',
                 style: Theme.of(context).textTheme.bodyLarge),
             const SizedBox(height: 32),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.route),
+                title: Text('$activeRides active ride${activeRides == 1 ? '' : 's'}'),
+                subtitle: const Text('Track requests and completed trips'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/passenger/rides'),
+              ),
+            ),
+            const SizedBox(height: 16),
             ElevatedButton.icon(
               icon: const Icon(Icons.search),
               label: const Text('Find a Driver'),

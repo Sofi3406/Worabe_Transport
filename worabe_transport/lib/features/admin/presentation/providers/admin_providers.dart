@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:worabe_transport/features/admin/data/admin_repository.dart';
 import 'package:worabe_transport/features/auth/presentation/providers/auth_providers.dart';
 import 'package:worabe_transport/features/complaints/domain/complaint_model.dart';
+import 'package:worabe_transport/features/rides/domain/ride_model.dart';
 
 final adminRepositoryProvider = Provider<AdminRepository>((ref) {
   return AdminRepository(apiClient: ref.watch(apiClientProvider));
@@ -9,7 +10,8 @@ final adminRepositoryProvider = Provider<AdminRepository>((ref) {
 
 final pendingDriversProvider =
     AsyncNotifierProvider<PendingDriversNotifier, List<PendingDriverModel>>(
-        PendingDriversNotifier.new);
+      PendingDriversNotifier.new,
+    );
 
 class PendingDriversNotifier extends AsyncNotifier<List<PendingDriverModel>> {
   @override
@@ -31,7 +33,8 @@ class PendingDriversNotifier extends AsyncNotifier<List<PendingDriverModel>> {
 
 final adminComplaintsProvider =
     AsyncNotifierProvider<AdminComplaintsNotifier, List<ComplaintModel>>(
-        AdminComplaintsNotifier.new);
+      AdminComplaintsNotifier.new,
+    );
 
 class AdminComplaintsNotifier extends AsyncNotifier<List<ComplaintModel>> {
   String? _statusFilter;
@@ -56,11 +59,27 @@ class AdminComplaintsNotifier extends AsyncNotifier<List<ComplaintModel>> {
     required String status,
     String? adminNote,
   }) async {
-    await ref.read(adminRepositoryProvider).reviewComplaint(
-          complaintId: id,
-          status: status,
-          adminNote: adminNote,
-        );
+    await ref
+        .read(adminRepositoryProvider)
+        .reviewComplaint(complaintId: id, status: status, adminNote: adminNote);
     await refresh(status: _statusFilter);
+  }
+}
+
+final adminRidesProvider =
+    AsyncNotifierProvider<AdminRidesNotifier, List<RideModel>>(
+      AdminRidesNotifier.new,
+    );
+
+class AdminRidesNotifier extends AsyncNotifier<List<RideModel>> {
+  @override
+  Future<List<RideModel>> build() =>
+      ref.read(adminRepositoryProvider).listAllRides();
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => ref.read(adminRepositoryProvider).listAllRides(),
+    );
   }
 }

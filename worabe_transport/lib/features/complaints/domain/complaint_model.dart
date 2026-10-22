@@ -8,6 +8,13 @@ class ComplaintModel {
     this.rideId,
     this.adminNote,
     this.reporterName,
+    this.reporterPhone,
+    this.reporterRole,
+    this.passengerName,
+    this.driverName,
+    this.pickupLabel,
+    this.destinationLabel,
+    this.rideStatus,
   });
 
   final String id;
@@ -18,6 +25,13 @@ class ComplaintModel {
   final DateTime createdAt;
   final String? adminNote;
   final String? reporterName;
+  final String? reporterPhone;
+  final String? reporterRole;
+  final String? passengerName;
+  final String? driverName;
+  final String? pickupLabel;
+  final String? destinationLabel;
+  final String? rideStatus;
 
   static String? _optionalRefId(dynamic value) {
     if (value == null) return null;
@@ -28,8 +42,18 @@ class ComplaintModel {
     return value.toString();
   }
 
+  static String? _optionalLabel(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      return value['label'] as String?;
+    }
+    return null;
+  }
+
   factory ComplaintModel.fromJson(Map<String, dynamic> json) {
     final reporter = json['reporterId'];
+    final ride = json['rideId'];
+    final passenger = ride is Map<String, dynamic> ? ride['passengerId'] : null;
+    final driver = ride is Map<String, dynamic> ? ride['driverId'] : null;
     return ComplaintModel(
       id: (json['_id'] ?? json['id']).toString(),
       rideId: _optionalRefId(json['rideId']),
@@ -40,6 +64,27 @@ class ComplaintModel {
       adminNote: json['adminNote'] as String?,
       reporterName: reporter is Map<String, dynamic>
           ? reporter['fullName'] as String?
+          : null,
+      reporterPhone: reporter is Map<String, dynamic>
+          ? reporter['phone'] as String?
+          : null,
+      reporterRole: reporter is Map<String, dynamic>
+          ? reporter['role'] as String?
+          : null,
+      passengerName: passenger is Map<String, dynamic>
+          ? passenger['fullName'] as String?
+          : null,
+      driverName: driver is Map<String, dynamic>
+          ? driver['fullName'] as String?
+          : null,
+      pickupLabel: ride is Map<String, dynamic>
+          ? _optionalLabel(ride['pickup'])
+          : null,
+      destinationLabel: ride is Map<String, dynamic>
+          ? _optionalLabel(ride['destination'])
+          : null,
+      rideStatus: ride is Map<String, dynamic>
+          ? ride['status'] as String?
           : null,
     );
   }

@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:worabe_transport/core/errors/app_exception.dart';
 import 'package:worabe_transport/core/network/api_client.dart';
 import 'package:worabe_transport/features/complaints/domain/complaint_model.dart';
+import 'package:worabe_transport/features/rides/domain/ride_model.dart';
+
 class PendingDriverModel {
   const PendingDriverModel({
     required this.profileId,
@@ -59,6 +61,18 @@ class AdminRepository {
     }
   }
 
+  Future<List<RideModel>> listAllRides() async {
+    try {
+      final res = await _dio.get('/admin/rides');
+      final list = res.data['rides'] as List<dynamic>;
+      return list
+          .map((e) => RideModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw _map(e);
+    }
+  }
+
   Future<List<ComplaintModel>> listAllComplaints({String? status}) async {
     try {
       final res = await _dio.get(
@@ -82,10 +96,7 @@ class AdminRepository {
     try {
       await _dio.patch(
         '/complaints/admin/$complaintId',
-        data: {
-          'status': status,
-          if (adminNote != null) 'adminNote': adminNote,
-        },
+        data: {'status': status, if (adminNote != null) 'adminNote': adminNote},
       );
     } on DioException catch (e) {
       throw _map(e);

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -46,6 +47,7 @@ class LocalDatabase {
   // ── Cached drivers ──────────────────────────────────────────────────────────
 
   Future<void> upsertDrivers(List<Map<String, dynamic>> drivers) async {
+    if (kIsWeb) return;
     final db = await database;
     final batch = db.batch();
     for (final d in drivers) {
@@ -55,6 +57,7 @@ class LocalDatabase {
   }
 
   Future<List<Map<String, dynamic>>> getCachedDrivers() async {
+    if (kIsWeb) return [];
     final db = await database;
     return db.query('cached_drivers', orderBy: 'full_name ASC');
   }
@@ -62,11 +65,13 @@ class LocalDatabase {
   // ── Ride drafts ─────────────────────────────────────────────────────────────
 
   Future<void> insertDraft(Map<String, dynamic> draft) async {
+    if (kIsWeb) return;
     final db = await database;
     await db.insert('ride_drafts', draft, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<Map<String, dynamic>>> getPendingDrafts() async {
+    if (kIsWeb) return [];
     final db = await database;
     return db.query(
       'ride_drafts',
@@ -77,6 +82,7 @@ class LocalDatabase {
   }
 
   Future<void> updateDraftStatus(String id, String status) async {
+    if (kIsWeb) return;
     final db = await database;
     await db.update(
       'ride_drafts',
@@ -87,6 +93,7 @@ class LocalDatabase {
   }
 
   Future<void> resetSubmittingDrafts() async {
+    if (kIsWeb) return;
     final db = await database;
     await db.update(
       'ride_drafts',
@@ -97,11 +104,13 @@ class LocalDatabase {
   }
 
   Future<void> deleteDraft(String id) async {
+    if (kIsWeb) return;
     final db = await database;
     await db.delete('ride_drafts', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<List<Map<String, dynamic>>> getAllDrafts() async {
+    if (kIsWeb) return [];
     final db = await database;
     return db.query('ride_drafts', orderBy: 'created_at DESC');
   }

@@ -133,7 +133,14 @@ async function listAllComplaints(req, res) {
 
     const complaints = await Complaint.find(filter)
       .populate("reporterId", "fullName phone role")
-      .populate("rideId", "pickup destination status createdAt")
+      .populate({
+        path: "rideId",
+        select: "passengerId driverId pickup destination status createdAt",
+        populate: [
+          { path: "passengerId", select: "fullName phone" },
+          { path: "driverId", select: "fullName phone" },
+        ],
+      })
       .sort({ createdAt: -1 })
       .lean();
 

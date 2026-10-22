@@ -4,6 +4,7 @@ const express = require("express");
 const {
   listPendingDrivers,
   reviewDriver,
+  listAllRides,
 } = require("../controllers/adminController");
 
 const {
@@ -24,5 +25,8 @@ router.patch(
   "/drivers/:driverId/verification",
   reviewDriver
 );
+
+// View all passenger and driver ride history.
+router.get("/rides", listAllRides);
 
 module.exports = router;

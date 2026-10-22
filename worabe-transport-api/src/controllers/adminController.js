@@ -1,6 +1,8 @@
 
 const mongoose = require("mongoose");
 const DriverProfile = require("../models/DriverProfile");
+const Notification = require("../models/Notification");
+const RideRequest = require("../models/RideRequest");
 
 // GET /api/admin/drivers/pending
 // View driver applications awaiting review.
@@ -76,6 +78,19 @@ async function reviewDriver(req, res) {
 
     await driver.save();
 
+    await Notification.create({
+      userId: driver.userId,
+      type: "driver_verification",
+      title:
+        verificationStatus === "approved"
+          ? "Driver account approved"
+          : "Driver application rejected",
+      message:
+        verificationStatus === "approved"
+          ? "Your account is approved. You can now choose to go online and receive ride requests."
+          : "Your driver application was rejected. Please contact support for more information.",
+    });
+
     return res.status(200).json({
       message:
         verificationStatus === "approved"
@@ -97,7 +112,31 @@ async function reviewDriver(req, res) {
   }
 }
 
+// GET /api/admin/rides
+// Administrators can view the complete passenger and driver ride history.
+async function listAllRides(req, res) {
+  try {
+    const rides = await RideRequest.find({})
+      .populate("passengerId", "fullName phone")
+      .populate("driverId", "fullName phone")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return res.status(200).json({
+      count: rides.length,
+      rides,
+    });
+  } catch (error) {
+    console.error("List all rides error:", error.message);
+
+    return res.status(500).json({
+      message: "Unable to retrieve ride history.",
+    });
+  }
+}
+
 module.exports = {
   listPendingDrivers,
   reviewDriver,
+  listAllRides,
 };

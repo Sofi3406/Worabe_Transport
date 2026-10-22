@@ -80,7 +80,21 @@ class _AdminComplaintCard extends ConsumerWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             if (complaint.reporterName != null)
-              Text('Reporter: ${complaint.reporterName}'),
+              Text(
+                'Reported by: ${complaint.reporterName}'
+                '${complaint.reporterRole == null ? '' : ' (${complaint.reporterRole})'}'
+                '${complaint.reporterPhone == null ? '' : ' · ${complaint.reporterPhone}'}',
+              ),
+            if (complaint.passengerName != null)
+              Text('Passenger: ${complaint.passengerName}'),
+            if (complaint.driverName != null)
+              Text('Driver: ${complaint.driverName}'),
+            if (complaint.pickupLabel != null)
+              Text('From: ${complaint.pickupLabel}'),
+            if (complaint.destinationLabel != null)
+              Text('To: ${complaint.destinationLabel}'),
+            if (complaint.rideStatus != null)
+              Text('Ride status: ${complaint.rideStatus}'),
             const SizedBox(height: 8),
             Text(complaint.description),
             const SizedBox(height: 8),

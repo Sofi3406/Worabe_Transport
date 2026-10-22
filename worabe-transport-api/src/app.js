@@ -34,6 +34,7 @@ app.use("/api/drivers", require("./routes/driverRoutes"));
 app.use("/api/rides", require("./routes/rideRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/complaints", require("./routes/complaintRoutes"));
+app.use("/api/notifications", require("./routes/notificationRoutes"));
 
 app.use((req, res) => {
   res.status(404).json({ message: "Endpoint not found" });
