@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const User = require("../models/User");
 const DriverProfile = require("../models/DriverProfile");
+const Notification = require("../models/Notification");
 
 // Create a JWT token after successful authentication
 function generateToken(user) {
@@ -90,7 +91,7 @@ async function register(req, res) {
     // New driver accounts require admin verification.
     if (accountRole === "driver") {
       try {
-        await DriverProfile.create({
+        const driverProfile = await DriverProfile.create({
           userId: user._id,
           vehicleType: "bajaj",
           vehiclePlate: vehiclePlate.trim(),
@@ -98,9 +99,28 @@ async function register(req, res) {
           isVerified: false,
           availability: "offline",
         });
+
+        const admins = await User.find({
+          role: "admin",
+          isActive: true,
+        })
+          .select("_id")
+          .lean();
+
+        if (admins.length > 0) {
+          await Notification.insertMany(
+            admins.map((admin) => ({
+              userId: admin._id,
+              type: "driver_registration",
+              title: "New driver application",
+              message: `${user.fullName} submitted a driver application for vehicle ${driverProfile.vehiclePlate}. Please review it.`,
+            }))
+          );
+        }
       } catch (error) {
         // Avoid leaving a driver account without its profile.
         await User.deleteOne({ _id: user._id });
+        await DriverProfile.deleteOne({ userId: user._id });
         throw error;
       }
     }
@@ -200,4 +220,3 @@ module.exports = {
   login,
   getMe,
 };
-

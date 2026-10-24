@@ -57,7 +57,12 @@ class AdminHomeScreen extends ConsumerWidget {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: () => ref.read(pendingDriversProvider.notifier).refresh(),
+        onRefresh: () async {
+          await Future.wait([
+            ref.read(pendingDriversProvider.notifier).refresh(),
+            ref.read(notificationsProvider.notifier).refresh(),
+          ]);
+        },
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
@@ -82,8 +87,12 @@ class AdminHomeScreen extends ConsumerWidget {
                       data: (drivers) => '${drivers.length}',
                       orElse: () => '...',
                     ),
-                    onTap: () =>
+                    onTap: () async {
+                      await Future.wait([
                         ref.read(pendingDriversProvider.notifier).refresh(),
+                        ref.read(notificationsProvider.notifier).refresh(),
+                      ]);
+                    },
                   ),
                 ),
                 const SizedBox(width: 12),
